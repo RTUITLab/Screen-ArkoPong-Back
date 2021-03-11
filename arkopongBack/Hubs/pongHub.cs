@@ -20,8 +20,6 @@ namespace arkopongBack.Hubs
             _tvInterface.CreateRoom(Context.ConnectionId);
             Groups.AddToGroupAsync(Context.ConnectionId, "tv");
             return Clients.Caller.SendAsync("SetID", Context.ConnectionId);
-
-            //Context.ConnectionAborted.Register(() => );
         }
 
         public Task Disconnect()
@@ -40,11 +38,10 @@ namespace arkopongBack.Hubs
 
         public Task Connect(string tvID)
         {
-            if (tvID != "" &&  _tvInterface.ConnectTo(Context.ConnectionId, tvID))
+            if (tvID != "" && _tvInterface.ConnectTo(Context.ConnectionId, tvID))
             {
                 Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID}");
                 Groups.AddToGroupAsync(Context.ConnectionId, "players");
-                //Context.ConnectionAborted.Register(() => KillTv(Context.ConnectionId));
                 if (_tvInterface.isRoomReady(tvID))
                 {
                     Clients.Client(tvID).SendAsync("StartGame");
@@ -55,6 +52,18 @@ namespace arkopongBack.Hubs
             return Clients.Caller.SendLogMsg("Сonnection rejected");
         }
 
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            await base.OnDisconnectedAsync(exception);
+            Console.WriteLine($"Disconnected: {Context.ConnectionId}");
+            string tvId = _tvInterface.WhereClient(Context.ConnectionId);
+            if (tvId != null)
+            {
+                await Clients.Client(_tvInterface.WhereClient(Context.ConnectionId)).SendAsync("StopGame");
+                _tvInterface.Disconnect(Context.ConnectionId);
+            }
+        }
+
         public Task SendDirection(float direction, string tvConnectionId)
         {
             int fromID = _tvInterface.GetPlayerIDFrom(Context.ConnectionId, tvConnectionId);
@@ -63,12 +72,6 @@ namespace arkopongBack.Hubs
                 return Clients.Client(tvConnectionId).SendAsync("SetDirection", fromID, direction);
             }
             return null;
-        }
-
-        private void KillTv(string ConnectionId)
-        {
-            Clients.Client(_tvInterface.WhereClient(ConnectionId)).SendAsync("StopGame");
-            _tvInterface.Disconnect(ConnectionId);
         }
     }
 }
