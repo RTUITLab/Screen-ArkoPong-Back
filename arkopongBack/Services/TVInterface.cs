@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace arkopongBack.Services
 {
@@ -49,6 +45,7 @@ namespace arkopongBack.Services
 
         public int GetPlayerIDFrom(string ConnectionId, string tvConnectionId)
         {
+            if(!rooms.ContainsKey(tvConnectionId)) return -1;
             return rooms[tvConnectionId].GetPlayerID(ConnectionId);
         }
 

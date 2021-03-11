@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using arkopongBack.Services;
-using Microsoft.AspNetCore.Components;
 
 namespace arkopongBack.Hubs
 {
@@ -45,7 +44,7 @@ namespace arkopongBack.Hubs
             {
                 Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID}");
                 Groups.AddToGroupAsync(Context.ConnectionId, "players");
-
+                //Context.ConnectionAborted.Register(() => KillTv(Context.ConnectionId));
                 if (_tvInterface.isRoomReady(tvID))
                 {
                     Clients.Client(tvID).SendAsync("StartGame");
@@ -56,7 +55,7 @@ namespace arkopongBack.Hubs
             return Clients.Caller.SendLogMsg("Сonnection rejected");
         }
 
-        public Task SendDirection(int direction, string tvConnectionId)
+        public Task SendDirection(float direction, string tvConnectionId)
         {
             int fromID = _tvInterface.GetPlayerIDFrom(Context.ConnectionId, tvConnectionId);
             if (fromID != -1)
@@ -64,6 +63,12 @@ namespace arkopongBack.Hubs
                 return Clients.Client(tvConnectionId).SendAsync("SetDirection", fromID, direction);
             }
             return null;
+        }
+
+        private void KillTv(string ConnectionId)
+        {
+            Clients.Client(_tvInterface.WhereClient(ConnectionId)).SendAsync("StopGame");
+            _tvInterface.Disconnect(ConnectionId);
         }
     }
 }
