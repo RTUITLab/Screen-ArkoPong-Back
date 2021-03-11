@@ -8,66 +8,66 @@ namespace arkopongBack.Services
 {
     public class TVInterface : ITVInterface
     {
-        private string[] players = new string[]{null, null};
-        private string _tvConnectionId = null;
-        public string tvConnectionId
+        private Dictionary<string, Room> rooms = new Dictionary<string, Room>();
+
+        public void CreateRoom(string ConnectionId)
         {
-            get
-            {
-                return _tvConnectionId;
-            }
-            set
-            {
-                _tvConnectionId = value;
-            }
+            Room newRoom = new Room();
+            rooms.Add(ConnectionId, newRoom);
         }
 
-        public bool CanConnect()
+        public bool ConnectTo(string ClientConnectionId, string tvConnectionId)
         {
-            if (_tvConnectionId == null) return false;
-            foreach (var player in players)
+            if (rooms.ContainsKey(tvConnectionId) && rooms[tvConnectionId].Connect(ClientConnectionId))
             {
-                if (player == null) return true;
+                return true;
             }
             return false;
         }
 
-        public void Connect(string ConnectionId)
+        public string Disconnect(string ConnectionId)
         {
-            ChangeConnectionState(null, ConnectionId);
-        }
-
-        public void Disconnect(string ConnectionId)
-        {
-            if (tvConnectionId == ConnectionId)
+            if (rooms.ContainsKey(ConnectionId))
             {
-                tvConnectionId = null;
-                return;
+                rooms.Remove(ConnectionId);
+                return ConnectionId;
             }
-            ChangeConnectionState(ConnectionId, null);
-        }
-
-        private void ChangeConnectionState(string from, string to)
-        {
-            for (int i = 0; i < players.Length; ++i)
+            else
             {
-                if (players[i] == from)
+                foreach (var room in rooms)     //Если кто то отключается, то комната тоже удаляется.
                 {
-                    players[i] = to;
-                    return;
+                    if (room.Value.isUserConnected(ConnectionId))
+                    {
+                        rooms.Remove(room.Key);
+                        return room.Key;
+                    }
                 }
             }
+
+            return null;
         }
 
-        public int GetPlayerID(string ConnectionId)
+        public int GetPlayerIDFrom(string ConnectionId, string tvConnectionId)
         {
-            for (int i = 0; i < players.Length; ++i)
+            return rooms[tvConnectionId].GetPlayerID(ConnectionId);
+        }
+
+        public string WhereClient(string ConnectionId)
+        {
+            foreach (var room in rooms)
             {
-                if (players[i] == ConnectionId) return i;
+                if (room.Value.isUserConnected(ConnectionId))
+                {
+                    return room.Key;
+                }
             }
 
-            return -1;
+            return null;
         }
 
+        public bool isRoomReady(string tvConnectionId)
+        {
+            return rooms[tvConnectionId].CanStart();
+        }
     }
 }

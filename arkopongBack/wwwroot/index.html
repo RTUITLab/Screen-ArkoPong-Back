@@ -6,48 +6,44 @@
 </head>
 <body>
     <div id="inputForm">
-        <input type="button" id="connectBtn" value="Присоединится" />
         <input type="button" id="leftBtn" value="Лево" disabled="true" />
         <input type="button" id="rightBtn" value="Право" disabled="true" />
     </div>
 <div id="pong"></div>
 <script src="js/signalr/dist/browser/signalr.min.js"></script>
 <script>
+
+    tvid = location.hash.replace('#', '');
+
     hubConnection = new signalR.HubConnectionBuilder()
         .withUrl("/pong")
         .build();
 
+    hubConnection.start().then(() => {
+        hubConnection.invoke("Connect", tvid);
+        console.log("Connection request was sent");
+    });
+
     hubConnection.on("Connected", function() {
         document.getElementById("leftBtn").disabled = false;
         document.getElementById("rightBtn").disabled = false;
-        //document.getElementById("connectBtn").disabled = true;
     });
 
-    //document.getElementById("connectBtn").addEventListener("click", function (e) {
-    //    hubConnection.invoke("Connect");
-    //});
-
     document.getElementById("leftBtn").addEventListener("mousedown", function (e) {
-        hubConnection.invoke("SendDirection", 1);
+        hubConnection.invoke("SendDirection", 1, tvid);
     });
 
     document.getElementById("leftBtn").addEventListener("mouseup", function (e) {
-        hubConnection.invoke("SendDirection", 0);
+        hubConnection.invoke("SendDirection", 0, tvid);
     });
 
     document.getElementById("rightBtn").addEventListener("mousedown", function (e) {
-        hubConnection.invoke("SendDirection", -1);
+        hubConnection.invoke("SendDirection", -1, tvid);
     });
 
     document.getElementById("rightBtn").addEventListener("mouseup", function (e) {
-        hubConnection.invoke("SendDirection", 0);
+        hubConnection.invoke("SendDirection", 0, tvid);
     });
-
-    hubConnection.start().then(() => { hubConnection.invoke("Connect");
-        console.log("started");
-    });
-
-    console.log(location.hash.replace('#', ''));
 </script>
 </body>
 </html>

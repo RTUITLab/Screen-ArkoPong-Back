@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-
-namespace arkopongBack.Services
+﻿namespace arkopongBack.Services
 {
     public interface ITVInterface
     {
-        public string tvConnectionId
-        {
-            get;
-            set;
-        }
 
-        public int GetPlayerID(string ConnectionId);
+        public int GetPlayerIDFrom(string ConnectionId, string tvConnectionId);
 
-        public void Connect(string ConnectionId);
+        public bool ConnectTo(string ClientConnectionId, string tvConnectionId);
 
-        public void Disconnect(string ConnectionId);
+        public string Disconnect(string ConnectionId);
 
-        public bool CanConnect();
+        public void CreateRoom(string ConnectionId);
+
+        public string WhereClient(string ConnectionId);
+
+        public bool isRoomReady(string tvConnectionId);
+
     }
 }

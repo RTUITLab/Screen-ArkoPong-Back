@@ -17,53 +17,53 @@ namespace arkopongBack.Hubs
 
         public Task ConnectTV()
         {
-            if (_tvInterface.tvConnectionId != null)
-            {
-                return SendLogMsg("the TV is already connected", Clients.Caller);
-            }
-            _tvInterface.tvConnectionId = Context.ConnectionId;
+            Console.WriteLine($"TV id: {Context.ConnectionId}");
+            _tvInterface.CreateRoom(Context.ConnectionId);
+            Groups.AddToGroupAsync(Context.ConnectionId, "tv");
+            return Clients.Caller.SendAsync("SetID", Context.ConnectionId);
+
             //Context.ConnectionAborted.Register(() => );
-            return Groups.AddToGroupAsync(Context.ConnectionId, "tv");
         }
 
         public Task Disconnect()
         {
-            _tvInterface.Disconnect(Context.ConnectionId);
-            Context.Abort();
+            string connectedTv = _tvInterface.Disconnect(Context.ConnectionId);
+            if (connectedTv != null)
+            {
+                Clients.Client(connectedTv).SendAsync("StopGame");
+            }
+            else
+            {
+                Clients.Caller.SendLogMsg("No room with this user or ID found");
+            }
             return null;
         }
 
-        public Task Connect()
+        public Task Connect(string tvID)
         {
-            Console.WriteLine(Context.ConnectionId);
-            if (_tvInterface.CanConnect())
+            if (tvID != "" &&  _tvInterface.ConnectTo(Context.ConnectionId, tvID))
             {
+                Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID}");
                 Groups.AddToGroupAsync(Context.ConnectionId, "players");
-                _tvInterface.Connect(Context.ConnectionId);
+
+                if (_tvInterface.isRoomReady(tvID))
+                {
+                    Clients.Client(tvID).SendAsync("StartGame");
+                }
                 return Clients.Caller.SendAsync("Connected");
             }
-            return SendLogMsg("Can't connect", Clients.Caller);
+            Console.WriteLine("connection attempt without tvID");
+            return Clients.Caller.SendLogMsg("Сonnection rejected");
         }
 
-        public Task SendDirection(int direction)
+        public Task SendDirection(int direction, string tvConnectionId)
         {
-            int fromID = _tvInterface.GetPlayerID(Context.ConnectionId);
-            SendMsg(fromID.ToString());
+            int fromID = _tvInterface.GetPlayerIDFrom(Context.ConnectionId, tvConnectionId);
             if (fromID != -1)
             {
-                return Clients.Client(_tvInterface.tvConnectionId).SendAsync("SetDirection", fromID, direction);
+                return Clients.Client(tvConnectionId).SendAsync("SetDirection", fromID, direction);
             }
             return null;
-        }
-
-        public Task SendMsg(string msg)
-        {
-            return SendLogMsg(msg, Clients.All);
-        }
-
-        private Task SendLogMsg(string msg, IClientProxy client)
-        {
-            return client.SendAsync("OutsideLog", msg);
         }
     }
 }
