@@ -6,8 +6,7 @@
 
         public bool Connect(string ConnectionId)
         {
-            ChangeConnectionState(null, ConnectionId);
-            return true;
+            return ChangeConnectionState(null, ConnectionId);
         }
 
         public bool isUserConnected(string ConnectionId)
@@ -20,16 +19,17 @@
             return false;
         }
 
-        private void ChangeConnectionState(string from, string to)
+        private bool ChangeConnectionState(string from, string to)
         {
             for (int i = 0; i < players.Length; ++i)
             {
                 if (players[i] == from)
                 {
                     players[i] = to;
-                    return;
+                    return true;
                 }
             }
+            return false;
         }
 
         public int GetPlayerID(string ConnectionId)
@@ -40,15 +40,6 @@
             }
 
             return -1;
-        }
-
-        public bool CanStart()
-        {
-            foreach (var player in players)
-            {
-                if (player == null) return false;
-            }
-            return true;
         }
     }
 }

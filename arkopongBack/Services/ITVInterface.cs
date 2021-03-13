@@ -13,7 +13,5 @@
 
         public string WhereClient(string ConnectionId);
 
-        public bool isRoomReady(string tvConnectionId);
-
     }
 }

@@ -42,13 +42,10 @@ namespace arkopongBack.Hubs
             {
                 Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID}");
                 Groups.AddToGroupAsync(Context.ConnectionId, "players");
-                if (_tvInterface.isRoomReady(tvID))
-                {
-                    Clients.Client(tvID).SendAsync("StartGame");
-                }
+                Clients.Client(tvID).SendAsync("PlayerJoin");
                 return Clients.Caller.SendAsync("Connected");
             }
-            Console.WriteLine("connection attempt without tvID");
+            Console.WriteLine("Сonnection rejected");
             return Clients.Caller.SendLogMsg("Сonnection rejected");
         }
 

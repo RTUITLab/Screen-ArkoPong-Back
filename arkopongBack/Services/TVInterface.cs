@@ -61,10 +61,5 @@ namespace arkopongBack.Services
 
             return null;
         }
-
-        public bool isRoomReady(string tvConnectionId)
-        {
-            return rooms[tvConnectionId].CanStart();
-        }
     }
 }
