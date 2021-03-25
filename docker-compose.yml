@@ -1,0 +1,5 @@
+version: '3.8'
+
+services:
+  api:
+    image: rtuitlab/screen-arko-pong-api

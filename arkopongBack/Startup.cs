@@ -26,7 +26,6 @@ namespace arkopongBack
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();
@@ -37,6 +36,7 @@ namespace arkopongBack
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapHub<pongHub>("/pong");
+                endpoints.MapFallbackToFile("/index.html");
             });
         }
     }

@@ -4,5 +4,5 @@ COPY ./arkopong-build /app
 
 ENV ASPNETCORE_URLS=http://*:5501
 EXPOSE 5501
-
-CMD dotnet /app/arkopongBack.dll
+WORKDIR /app
+CMD dotnet arkopongBack.dll
