@@ -33,6 +33,6 @@ stages:
   jobs:
   - job: build_api
     steps:
-    - script: ./build.sh
+    - pwsh: ./build.ps1
     - publish: deploy
       artifact: arkopong-api-build
