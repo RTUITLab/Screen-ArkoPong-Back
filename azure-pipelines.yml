@@ -36,3 +36,49 @@ stages:
     - pwsh: ./build.ps1
     - publish: deploy
       artifact: arkopong-api-build
+- stage: packInDocker
+  condition:  and(succeeded(), ${{variables.buildImage}}) 
+  jobs:
+  - job: pack
+    steps:
+    - download: current
+      artifact: arkopong-api-build
+      displayName: download arkopong-api-build
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'rtuitlab connection by admin'
+        repository: rtuitlab/screen-arko-pong-api
+        command: 'buildAndPush'
+        Dockerfile: '$(Pipeline.Workspace)/arkopong-api-build/Dockerfile'
+        buildContext: '$(Pipeline.Workspace)/arkopong-api-build'
+        tags: ${{variables.imageTags}}
+
+- stage: deploy
+  condition: and(succeeded(), ${{variables.deployService}})
+  jobs:
+    - deployment: DeployApi
+      displayName: Deploy api
+      pool:
+        vmImage: 'ubuntu-latest'
+      environment: ${{variables.deployEnvironment}}
+      strategy:
+        runOnce:
+          on:
+            failure:
+              steps:
+                - download: none
+                - task: SSH@0
+                  inputs:
+                    sshEndpoint: 'swarm manager'
+                    runOptions: 'commands'
+                    commands: 'docker service rollback ${{variables.apiServiceName}}'
+                    readyTimeout: '20000'
+          deploy:
+            steps:
+              - download: none
+              - task: SSH@0
+                inputs:
+                  sshEndpoint: 'swarm manager'
+                  runOptions: 'commands'
+                  commands: 'docker service update --image rtuitlab/screen-arko-pong-api:$(Build.BuildId) ${{variables.apiServiceName}}'
+                  readyTimeout: '20000'
