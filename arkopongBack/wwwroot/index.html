@@ -3,6 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <title>SignalR Chat - Metanit.com</title>
+
+    <!-- Disable zoom -->
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' >
     
     <!-- Montserrat font -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -37,18 +40,22 @@
     });
 
     document.getElementById("leftBtn").addEventListener("mousedown", function (e) {
+        console.log('L D');
         hubConnection.invoke("SendDirection", 1, tvid);
     });
 
     document.getElementById("leftBtn").addEventListener("mouseup", function (e) {
+        console.log('L U');
         hubConnection.invoke("SendDirection", 0, tvid);
     });
 
     document.getElementById("rightBtn").addEventListener("mousedown", function (e) {
+        console.log('R D');
         hubConnection.invoke("SendDirection", -1, tvid);
     });
 
     document.getElementById("rightBtn").addEventListener("mouseup", function (e) {
+        console.log('R U');
         hubConnection.invoke("SendDirection", 0, tvid);
     });
 </script>
