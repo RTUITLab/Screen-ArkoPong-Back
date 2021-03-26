@@ -41,6 +41,12 @@ div[type="button"] {
     justify-content: center;
     align-items: center;
     text-align: center;
+
+    /* Disable text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 @media (max-aspect-ratio: 1/1) {
