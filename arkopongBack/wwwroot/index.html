@@ -17,7 +17,7 @@
 <body>
     <div id="inputForm">
         <div type="button" id="leftBtn" disabled="true" ><span>ЛЕВО</span></div>
-        <div type="button" id="rightBtn"disabled="true" ><span>ПРАВО</span></div>
+        <div type="button" id="rightBtn" disabled="true" ><span>ПРАВО</span></div>
     </div>
 <div id="pong"></div>
 <script src="js/signalr/dist/browser/signalr.min.js"></script>
@@ -39,24 +39,28 @@
         document.getElementById("rightBtn").setAttribute('disabled', 'false');
     });
 
-    document.getElementById("leftBtn").addEventListener("mousedown", function (e) {
-        console.log('L D');
-        hubConnection.invoke("SendDirection", 1, tvid);
+    document.getElementById("leftBtn").addEventListener("touchstart", function (e) {
+        if (e.target.getAttribute('disabled') === 'false') {
+            hubConnection.invoke("SendDirection", 1, tvid);
+        }
     });
 
-    document.getElementById("leftBtn").addEventListener("mouseup", function (e) {
-        console.log('L U');
-        hubConnection.invoke("SendDirection", 0, tvid);
+    document.getElementById("leftBtn").addEventListener("touchend", function (e) {
+        if (e.target.getAttribute('disabled') === 'false') {
+            hubConnection.invoke("SendDirection", 0, tvid);
+        }
     });
 
-    document.getElementById("rightBtn").addEventListener("mousedown", function (e) {
-        console.log('R D');
-        hubConnection.invoke("SendDirection", -1, tvid);
+    document.getElementById("rightBtn").addEventListener("touchstart", function (e) {
+        if (e.target.getAttribute('disabled') === 'false') {
+            hubConnection.invoke("SendDirection", -1, tvid);
+        }
     });
 
-    document.getElementById("rightBtn").addEventListener("mouseup", function (e) {
-        console.log('R U');
-        hubConnection.invoke("SendDirection", 0, tvid);
+    document.getElementById("rightBtn").addEventListener("touchend", function (e) {
+        if (e.target.getAttribute('disabled') === 'false') {
+            hubConnection.invoke("SendDirection", 0, tvid);
+        }
     });
 </script>
 </body>
