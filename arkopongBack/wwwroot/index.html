@@ -3,11 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <title>SignalR Chat - Metanit.com</title>
+    
+    <!-- Montserrat font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+
+    <!-- Field style -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="inputForm">
-        <input type="button" id="leftBtn" value="Лево" disabled="true" />
-        <input type="button" id="rightBtn" value="Право" disabled="true" />
+        <div type="button" id="leftBtn" disabled="true" ><span>ЛЕВО</span></div>
+        <div type="button" id="rightBtn"disabled="true" ><span>ПРАВО</span></div>
     </div>
 <div id="pong"></div>
 <script src="js/signalr/dist/browser/signalr.min.js"></script>
@@ -25,8 +32,8 @@
     });
 
     hubConnection.on("Connected", function() {
-        document.getElementById("leftBtn").disabled = false;
-        document.getElementById("rightBtn").disabled = false;
+        document.getElementById("leftBtn").setAttribute('disabled', 'false');
+        document.getElementById("rightBtn").setAttribute('disabled', 'false');
     });
 
     document.getElementById("leftBtn").addEventListener("mousedown", function (e) {

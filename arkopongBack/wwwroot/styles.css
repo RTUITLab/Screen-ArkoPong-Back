@@ -1,0 +1,105 @@
+/* Colors */
+:root {
+    --black-dirt: #353340;
+    --red-coral: #ff695b;
+    --blue-wave: #199ebd;
+
+    --red-transparent-coral: #ff695b20;
+    --blue-transparent-wave: #199ebd20;
+}
+
+/* Field settings */
+html, body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: var(--black-dirt);
+    font-family: montserrat, Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#inputForm {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+/* Buttons' common settings */
+div[type="button"] {
+    display: flex;
+    width: 45vw;
+    height: 86vh;
+    margin: 6vh 2.5vw;
+    border: 2px solid;
+    border-radius: 4px;
+    outline: none;
+    background: none;
+    font-family: montserrat, Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 10vh;
+    transition: all 0.3s;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+@media (max-aspect-ratio: 1/1) {
+    div[type="button"] {
+        font-size: 10vw;
+    }
+}
+
+div[type="button"][disabled="true"] {
+    filter: contrast(0.3);
+}
+
+/* Buttons' animation */
+div[type="button"][disabled="false"]::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+    opacity: 0;
+    transform: scale(0.5, 0.5);
+}
+
+div[type="button"][disabled="false"]:active {
+    transition: none;
+}
+
+div[type="button"][disabled="false"]:active::before {
+    opacity: 1;
+    transform: scale(1, 1);
+	transition: all ease-out 0.1s;
+}
+
+/* Customise buttons */
+#leftBtn {
+    border-color: var(--blue-wave);
+    color: var(--blue-wave);
+}
+
+#leftBtn[disabled="false"]:hover {
+    background-color: var(--blue-transparent-wave);
+}
+
+#leftBtn[disabled="false"]::before {
+	background-color: var(--blue-transparent-wave);
+}
+
+
+#rightBtn {
+    border-color: var(--red-coral);
+    color: var(--red-coral);
+}
+
+#rightBtn[disabled="false"]:hover {
+    background-color: var(--red-transparent-coral);
+}
+
+#rightBtn[disabled="false"]::before {
+	background-color: var(--red-transparent-coral);
+}
