@@ -1,5 +1,8 @@
 # arkopongBack
+[![Build Status](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_apis/build/status/Screen-ArkoPong-Back?branchName=master)](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_build/latest?definitionId=156&branchName=master)
+
 This project is SignalR backend for [ScreenArkoPong][Game]
+
 
 [Game repo]: https://github.com/RTUITLab/Screen-ArkoPong
 ## Requirements
