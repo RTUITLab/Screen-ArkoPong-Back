@@ -41,5 +41,21 @@
 
             return -1;
         }
+
+        public void RemoveUser(string ConnectionId)
+        {
+            for (int i = 0; i < players.Length; ++i)
+            {
+                if (players[i] == ConnectionId)
+                {
+                    players[i] = null;
+                }
+            }
+        }
+
+        public string[] GetPlayers()
+        {
+            return players;
+        }
     }
 }

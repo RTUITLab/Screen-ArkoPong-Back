@@ -13,5 +13,10 @@
 
         public string WhereClient(string ConnectionId);
 
+        public bool isTV(string ConnectionId);
+
+        public string[] GetPlayers(string tvConnectionId);
+
+        public byte GetPlayersCount(string tvConnectionId);
     }
 }

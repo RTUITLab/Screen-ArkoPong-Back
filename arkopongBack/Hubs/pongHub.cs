@@ -18,52 +18,57 @@ namespace arkopongBack.Hubs
         {
             Console.WriteLine($"TV id: {Context.ConnectionId}");
             _tvInterface.CreateRoom(Context.ConnectionId);
-            Groups.AddToGroupAsync(Context.ConnectionId, "tv");
             return Clients.Caller.SendAsync("SetID", Context.ConnectionId);
-        }
-
-        public Task Disconnect()
-        {
-            string connectedTv = _tvInterface.Disconnect(Context.ConnectionId);
-            if (connectedTv != null)
-            {
-                Clients.Client(connectedTv).SendAsync("StopGame");
-            }
-            else
-            {
-                Clients.Caller.SendLogMsg("No room with this user or ID found");
-            }
-            return null;
         }
 
         public Task Connect(string tvID)
         {
-            if (tvID != "" && _tvInterface.ConnectTo(Context.ConnectionId, tvID))
+            if (!string.IsNullOrEmpty(tvID) && _tvInterface.ConnectTo(Context.ConnectionId, tvID))
             {
-                Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID}");
-                Groups.AddToGroupAsync(Context.ConnectionId, "players");
+                Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID};");
                 Clients.Client(tvID).SendAsync("PlayerJoin");
+                if (_tvInterface.GetPlayersCount(tvID) == 2)
+                {
+                    Clients.Client(tvID).SendAsync("StartGame");
+                }
                 return Clients.Caller.SendAsync("Connected");
             }
-            Console.WriteLine("Сonnection rejected");
+            Console.WriteLine("Сonnection rejected;");
             return Clients.Caller.SendLogMsg("Сonnection rejected");
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             await base.OnDisconnectedAsync(exception);
-            Console.WriteLine($"Disconnected: {Context.ConnectionId}");
-            string tvId = _tvInterface.WhereClient(Context.ConnectionId);
-            if (tvId != null)
+            Console.WriteLine($"Disconnected: {Context.ConnectionId};");
+
+            if (_tvInterface.isTV(Context.ConnectionId))
             {
-                await Clients.Client(_tvInterface.WhereClient(Context.ConnectionId)).SendAsync("StopGame");
-                _tvInterface.Disconnect(Context.ConnectionId);
+                foreach (var player in _tvInterface.GetPlayers(Context.ConnectionId))
+                {
+                    if (player != null)
+                    {
+                        await Clients.Client(player).SendAsync("Disconnect");
+                    }
+                }
             }
+            else
+            {
+                byte playersCount = 0;
+                string tvID = _tvInterface.WhereClient(Context.ConnectionId);
+                foreach (var player in _tvInterface.GetPlayers(tvID))
+                {
+                    if (player != null) ++playersCount;
+                }
+                await Clients.Client(tvID).SendAsync((playersCount == 1) ? "StopGame" : "PauseGame");
+            }
+            _tvInterface.Disconnect(Context.ConnectionId);
         }
 
         public Task SendDirection(float direction, string tvConnectionId)
         {
             int fromID = _tvInterface.GetPlayerIDFrom(Context.ConnectionId, tvConnectionId);
+            Console.WriteLine($"{fromID} нажатие");
             if (fromID != -1)
             {
                 return Clients.Client(tvConnectionId).SendAsync("SetDirection", fromID, direction);

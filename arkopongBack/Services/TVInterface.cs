@@ -30,17 +30,22 @@ namespace arkopongBack.Services
             }
             else
             {
-                foreach (var room in rooms)     //Если кто то отключается, то комната тоже удаляется.
+                foreach (var room in rooms)
                 {
                     if (room.Value.isUserConnected(ConnectionId))
                     {
-                        rooms.Remove(room.Key);
+                        room.Value.RemoveUser(ConnectionId);
                         return room.Key;
                     }
                 }
             }
 
             return null;
+        }
+
+        public bool isTV(string ConnectionId)
+        {
+            return rooms.ContainsKey(ConnectionId);
         }
 
         public int GetPlayerIDFrom(string ConnectionId, string tvConnectionId)
@@ -60,6 +65,22 @@ namespace arkopongBack.Services
             }
 
             return null;
+        }
+
+        public string[] GetPlayers(string tvConnectionId)
+        {
+            return rooms[tvConnectionId].GetPlayers();
+        }
+
+        public byte GetPlayersCount(string tvConnectionId)
+        {
+            byte res = 0;
+            foreach (var player in rooms[tvConnectionId].GetPlayers())
+            {
+                if (player != null) ++res;
+            }
+
+            return res;
         }
     }
 }
