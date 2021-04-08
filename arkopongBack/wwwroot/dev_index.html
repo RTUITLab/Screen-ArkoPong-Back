@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ArkoPong</title>
+
+  <!-- Disable zoom -->
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' >
+  
+  <!-- Montserrat font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Field style -->
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="js/signalr/dist/browser/signalr.min.js"></script>
+
+
+  <style>
+    :root {
+      --black-dirt: #00044e
+    }
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+    }
+
+    .title {
+      display: flex;
+      padding: 70px 0 30px;
+      justify-content: center;
+      font-size: 40px;
+      color: #37ffff;
+    }
+
+    #canvas {
+      height: calc(100vh - 140px);
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="title">ARKOPONG</div>
+  <div id="canvas"></div>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+    import { DragControls } from 'https://unpkg.com/three@0.127.0/examples/jsm/controls/DragControls.js';
+    console.log(signalR);
+
+    let scene, camera, renderer;
+    let container = document.getElementById('canvas');
+
+    const lever = {};
+
+    const originY = 8;
+    
+    const initScene = () => {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(50, container.offsetWidth / container.offsetHeight, 0.01, 1000);
+      camera.rotation.x = - Math.PI / 2;
+      camera.position.set(0, 25, 0);
+      scene.background = new THREE.Color(0x00044e);
+
+      const dLight = new THREE.DirectionalLight(0xffffff);
+      dLight.position.set(5, 10, 7.5);
+      dLight.intencity = 1;
+      scene.add(dLight);
+      
+      // Renderer
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      container.appendChild(renderer.domElement);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+
+
+      // Lever
+      let geometry = new THREE.CylinderGeometry(1, 1, 1, 32);
+      let material = new THREE.MeshLambertMaterial({
+        color: 0x99b1ff
+      });
+      const cylinder = new THREE.Mesh(geometry, material);
+      cylinder.position.set(0, originY / 2, 0);
+      cylinder.scale.set(0.25, originY, 0.25);
+      scene.add(cylinder);
+
+      geometry = new THREE.SphereGeometry(1, 20, 20);
+      material = new THREE.MeshLambertMaterial({
+        color: 0x666666
+      });
+      const sphere = new THREE.Mesh(geometry, material);
+      sphere.position.y = originY;
+      scene.add(sphere);
+
+      lever.cylinder = cylinder;
+      lever.sphere = sphere;
+
+      // Connect to TV
+      const tvid = location.hash.replace('#', '');
+
+      let hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/pong")
+        .build();
+
+      hubConnection.start().then(() => {
+        hubConnection.invoke("Connect", tvid);
+        console.log("Connection request was sent");
+      });
+
+      hubConnection.on("Connected", function() {
+        lever.sphere.material.color = new THREE.Color(0xbb00ff);        
+
+        // Controller
+        geometry = new THREE.SphereGeometry(1, 20, 20);
+        material = new THREE.MeshLambertMaterial({
+          color: 0x666666
+        })
+        const controller = new THREE.Mesh(geometry, material);
+        controller.position.y = originY;
+        controller.visible = false;
+        scene.add(controller);
+
+        let controls = new DragControls([controller], camera, renderer.domElement);
+        controls.addEventListener('drag', (e) => {
+          if (e.object.position.z / originY < 1 && e.object.position.z / originY > -1) {
+            lever.sphere.position.z = e.object.position.z;
+            lever.sphere.position.y = Math.sqrt(originY * originY - e.object.position.z * e.object.position.z);
+
+            lever.cylinder.rotation.x = Math.asin(e.object.position.z / originY);
+            lever.cylinder.position.z = e.object.position.z / 2;
+            lever.cylinder.position.y = lever.sphere.position.y / 2;
+            
+            // console.log(e.object.position.z / originY);
+            render();
+
+            hubConnection.invoke("SendDirection", -e.object.position.z / originY, tvid);
+          }
+        });
+        controls.addEventListener('dragend', (e) => {
+          controller.position.set(0, originY, 0);
+          lever.sphere.position.set(0, originY, 0);
+          lever.cylinder.rotation.set(0, 0, 0);
+          lever.cylinder.position.set(0, originY / 2, 0);
+          render();
+
+          hubConnection.invoke("SendDirection", 0, tvid);
+        });
+      });
+
+      render();
+    }
+    function render() {
+      requestAnimationFrame(render);    
+      renderer.render(scene, camera);
+    }
+
+    // let render = () => {
+    //   renderer.render(scene, camera);
+    //   console.log(renderer)
+    // }
+
+    initScene();
+  </script>
+</body>
