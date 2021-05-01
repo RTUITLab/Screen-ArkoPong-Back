@@ -1,10 +1,8 @@
-# arkopongBack
+# Screen-ArkoPong-Back
 [![Build Status](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_apis/build/status/Screen-ArkoPong-Back?branchName=master)](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_build/latest?definitionId=156&branchName=master)
 
-This project is SignalR backend for [ScreenArkoPong][Game]
+This project is SignalR backend for [ArkoPong](https://github.com/RTUITLab/Screen-ArkoPong).
 
-
-[Game repo]: https://github.com/RTUITLab/Screen-ArkoPong
 ## Requirements
 * .NET 5.0
 
@@ -13,8 +11,8 @@ This project is SignalR backend for [ScreenArkoPong][Game]
 * Open `\arkopongBack` folder in the console;
 * Use `dotnet run` command;
 * Wait.
----
 
+---
 ## Start Docker
 
 1. Build project
