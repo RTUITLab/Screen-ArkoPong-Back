@@ -80,5 +80,5 @@ stages:
                 inputs:
                   sshEndpoint: 'swarm manager'
                   runOptions: 'commands'
-                  commands: 'docker service update --image rtuitlab/screen-arko-pong-api:$(Build.BuildId) ${{variables.apiServiceName}}'
+                  commands: 'docker service update --image rtuitlab/screen-arko-pong-api:$(Build.BuildId) ${{variables.apiServiceName}} --with-registry-auth'
                   readyTimeout: '20000'
