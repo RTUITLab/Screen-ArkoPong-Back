@@ -16,16 +16,16 @@ namespace arkopongBack.Hubs
 
         public Task ConnectTV()
         {
-            Console.WriteLine($"TV id: {Context.ConnectionId}");
+            Console.WriteLine($"New TV connection. ID:[{Context.ConnectionId}];");
             _tvInterface.CreateRoom(Context.ConnectionId);
             return Clients.Caller.SendAsync("SetID", Context.ConnectionId);
         }
 
-        public Task Connect(string tvID)
+        public Task ConnectClient(string tvID)
         {
             if (!string.IsNullOrEmpty(tvID) && _tvInterface.ConnectTo(Context.ConnectionId, tvID))
             {
-                Console.WriteLine($"Client id: {Context.ConnectionId}, connect to tv id: {tvID};");
+                Console.WriteLine($"New client connection. Client ID:[{Context.ConnectionId}]. TV ID:[{tvID}];");
                 Clients.Client(tvID).SendAsync("PlayerJoin");
                 if (_tvInterface.GetPlayersCount(tvID) == 2)
                 {
@@ -33,14 +33,13 @@ namespace arkopongBack.Hubs
                 }
                 return Clients.Caller.SendAsync("Connected");
             }
-            Console.WriteLine("Сonnection rejected;");
-            return Clients.Caller.SendLogMsg("Сonnection rejected");
+            Console.WriteLine($"Сonnection rejected. Rejected ID:[{Context.ConnectionId}];");
+            return Clients.Caller.SendLogMsg("Сonnection rejected;");
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             await base.OnDisconnectedAsync(exception);
-            Console.WriteLine($"Disconnected: {Context.ConnectionId};");
 
             if (_tvInterface.isTV(Context.ConnectionId))
             {
@@ -51,6 +50,7 @@ namespace arkopongBack.Hubs
                         await Clients.Client(player).SendAsync("Disconnect");
                     }
                 }
+                Console.WriteLine($"Disconnected TV ID:[{Context.ConnectionId}];");
             }
             else
             {
@@ -61,6 +61,7 @@ namespace arkopongBack.Hubs
                     if (player != null) ++playersCount;
                 }
                 await Clients.Client(tvID).SendAsync((playersCount == 1) ? "StopGame" : "PauseGame");
+                Console.WriteLine($"Disconnected client ID: {Context.ConnectionId};");
             }
             _tvInterface.Disconnect(Context.ConnectionId);
         }
@@ -68,7 +69,7 @@ namespace arkopongBack.Hubs
         public Task SendDirection(float direction, string tvConnectionId)
         {
             int fromID = _tvInterface.GetPlayerIDFrom(Context.ConnectionId, tvConnectionId);
-            Console.WriteLine($"{fromID} нажатие");
+            Console.WriteLine($"Direction [{direction}] received from ID:[{fromID}];");
             if (fromID != -1)
             {
                 return Clients.Client(tvConnectionId).SendAsync("SetDirection", fromID, direction);

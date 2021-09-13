@@ -30,7 +30,7 @@
         .build();
 
     hubConnection.start().then(() => {
-        hubConnection.invoke("Connect", tvid);
+        hubConnection.invoke("ConnectClient", tvid);
         console.log("Connection request was sent");
     });
 
